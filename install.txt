@@ -1,0 +1,17 @@
+create a virutual environment 
+for installation : "pip install flask pandas pyserial pywin32" run this in terminal within virutual environment 
+pip install qrcode pillow
+
+then for printing 
+
+Set Zebra printer as: Default Printer in Windows
+
+OR manually set printer name:
+
+printer_name = "ZDesigner ZD230-203dpi ZPL"
+
+instead of:
+
+win32print.GetDefaultPrinter()
+
+run app.py file and it will 

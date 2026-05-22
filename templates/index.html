@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weight Verification System</title>
+
+    <link rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="background"></div>
+
+    <div class="main-container">
+
+        <!-- TOP BAR -->
+
+        <div class="top-bar">
+
+            <div>
+                <h1>Weight Verification System</h1>
+                <p>Industrial Product Validation Dashboard</p>
+            </div>
+
+            <div class="live-status">
+                <span class="dot"></span>
+                SYSTEM ONLINE
+            </div>
+
+        </div>
+
+        <!-- DASHBOARD -->
+
+        <div class="dashboard">
+
+            <!-- LEFT PANEL -->
+
+            <div class="left-panel">
+
+                <div class="glass-card">
+
+                    <h2>Barcode / Manual Input</h2>
+
+                    <input type="text"
+                        id="barcode"
+                        placeholder="Scan Barcode or Enter Number"
+                        onkeypress="handleEnter(event)"
+                        autofocus>
+
+                
+
+                    <button onclick="verifyProduct()">
+                        VERIFY PRODUCT
+                    </button>
+
+                </div>
+
+                <!-- PRODUCT DETAILS -->
+
+                <div class="glass-card">
+
+                    <h2>Product Details</h2>
+
+                    <div class="details-container">
+
+                        <div class="detail-box">
+                            <span>Product Name</span>
+                            <h3 id="productName">--</h3>
+                        </div>
+
+                        <div class="detail-box">
+                            <span>Stored Weight</span>
+                            <h3 id="storedWeight">0 g</h3>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- RIGHT PANEL -->
+
+            <div class="right-panel">
+
+                <!-- LIVE WEIGHT -->
+
+                <div class="glass-card weight-card">
+
+                    <h2>Live Weight</h2>
+
+                    <div class="weight-display">
+                        <span id="liveWeight">0</span>
+                        <small>g</small>
+                    </div>
+
+                </div>
+
+                <!-- STATUS -->
+
+                <div class="glass-card">
+
+                    <h2>Current Status</h2>
+
+                    <div id="statusBox" class="waiting">
+
+                        WAITING FOR INPUT
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+            function handleEnter(event) {
+    
+                if (event.key === "Enter") {
+                    verifyProduct();
+                }
+            }
+        async function verifyProduct() {
+
+            const barcode =
+                document.getElementById("barcode").value;
+
+            const response = await fetch("/verify", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    barcode: barcode
+                })
+            });
+
+            const data = await response.json();
+
+            let productName =
+                document.getElementById("productName");
+
+            let storedWeight =
+                document.getElementById("storedWeight");
+
+            let liveWeight =
+                document.getElementById("liveWeight");
+
+            let statusBox =
+                document.getElementById("statusBox");
+
+            // ERROR
+
+            if (data.status === "ERROR") {
+
+                productName.innerText = "--";
+
+                storedWeight.innerText = "0 g";
+
+                liveWeight.innerText = "0";
+
+                statusBox.innerHTML =
+                    `<span class="error-text">${data.message}</span>`;
+
+                return;
+            }
+
+            // UPDATE VALUES
+
+            productName.innerText =
+                data.product_name;
+
+            storedWeight.innerText =
+                data.expected_weight + " g";
+
+            liveWeight.innerText =
+                data.current_weight;
+
+            // PASS / FAIL STATUS
+
+            if (data.status === "PASS") {
+
+                statusBox.innerHTML =
+                    `<span class="pass-text">PASS</span>`;
+            }
+
+            else {
+
+                statusBox.innerHTML =
+                    `<span class="fail-text">FAIL</span>`;
+            }
+
+            // CLEAR INPUT FIELD
+
+            document.getElementById("barcode").value = "";
+
+            // AUTO FOCUS AGAIN
+
+            document.getElementById("barcode").focus();
+        }
+
+        window.onload = function () {
+
+            const barcodeInput =
+                document.getElementById("barcode");
+
+    // AUTO FOCUS
+
+            barcodeInput.focus();
+
+    // ALWAYS KEEP CURSOR ACTIVE
+
+            document.addEventListener("click", () => {
+
+                barcodeInput.focus();
+            });
+
+    // CLEAR INPUT WHEN NEW SCAN STARTS
+
+            barcodeInput.addEventListener("input", function () {
+
+                if (this.value.length > 30) {
+
+                    this.value = "";
+        }
+    });
+};
+
+
+
+    </script>
+
+</body>
+
+</html>

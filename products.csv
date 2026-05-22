@@ -1,0 +1,5 @@
+barcode,product_name,expected_weight
+8901230000000,Product A,500
+8901230000001,Product B,750
+8901230000002,Product C,1000
+4025515080930,Product D,1685
